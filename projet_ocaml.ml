@@ -71,30 +71,23 @@ let () = printf "%-30s %s\n" "brin_complementaire:" "Assertions effectuées avec
 (*** Question 3 ***)
 
 (*
-@function distance_rec
+@function distance
 @desc Pour deux brins donnés, compte le nombre de nucléotides différents.
 @param b1 Un brin d'ADN
 @param b2 Un autre brin d'ADN
-@param cpt Un compteur de nucléotides différents
 @returns Le nombre de nucléotides différents
 @throws Une exception lorsque les brins sont de tailles différentes
 *)
-let rec distance_rec (b1: brin) (b2: brin) (cpt: int): int = 
+let distance (b1: brin) (b2: brin): int = 
+    let rec distance_rec (b1: brin) (b2: brin) (cpt: int): int = 
         match (b1, b2) with
         | [], []                -> cpt
         | [], _                 -> failwith "[distance_rec] erreur : brins de taille différente"
         |  _, []                -> failwith "[distance_rec] erreur : brins de taille différente"
         | (h1::t1), (h2::t2)    -> if h1 <> h2 then distance_rec t1 t2 (cpt + 1) else distance_rec t1 t2 cpt
+    in
+        distance_rec b1 b2 0
     ;;
-
-(*
-@function distance
-@desc Encapsule la fonction distance_rec pour la rendre plus simple d'utilisation.
-@param b1 Un brin d'ADN
-@param b2 Un autre brin d'ADN
-@returns Le nombre de nucléotides différents
-*)
-let distance (b1: brin) (b2: brin): int = distance_rec b1 b2 0;;
 
 (* Assertions *)
 let () = assert (distance [T] [T] = 0);;
@@ -103,3 +96,4 @@ let () = assert (distance [G;A;G] [A;G;G] = 2);;
 let () = assert (distance [] [] = 0);;
 (* distance [A] [A;A] provoquerait une erreur car les listes sont de longueur différentes*)
 let () = printf "%-30s %s\n" "distance:" "Assertions effectuées avec succès.";;
+
