@@ -19,7 +19,7 @@ let contenu_gc (b: brin): float =
     else
         List.fold_left (fun acc nucl -> acc +. if nucl = G || nucl = C then 1. else 0.) 0. b
         /. 
-        float_of_int (List.length b)
+        (float) (List.length b)
     ;;
 
 (* Assertions *)
@@ -97,3 +97,30 @@ let () = assert (distance [] [] = 0);;
 (* distance [A] [A;A] provoquerait une erreur car les listes sont de longueur différentes*)
 let () = printf "%-30s %s\n" "distance:" "Assertions effectuées avec succès.";;
 
+(*** Question 4 ***)
+
+(* 
+@function similarite
+@desc Calcule la similarité procentuelle entre deux brins de même longueur.
+@param b1 Un brin d'ADN
+@param b2 Un autre brin d'ADN
+@returns La similarité entre les brins
+@see distance
+*)
+let similarite (b1: brin) (b2: brin): float =
+    if b1 = [] && b2 = [] then
+        1.
+    else 
+        let length = 
+            (float) (List.length b1)
+        in 
+            1. -. ((float) (distance b1 b2) /. length)
+    ;;
+
+(* Assertions *)
+let () = assert (similarite [C;G;A;T] [T;A;G;T] = 0.25);;
+let () = assert (similarite [A;G;C;T] [T;A;A;G] = 0.);;
+let () = assert (similarite [A;G;C;T] [A;G;C;T] = 1.);;
+let () = assert (similarite [] [] = 1.);;
+(* similarite [A] [A;A] provoquerait une erreur car les listes sont de longueur différentes*)
+let () = printf "%-30s %s\n" "similarite:" "Assertions effectuées avec succès.";;
