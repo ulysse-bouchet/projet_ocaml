@@ -181,34 +181,24 @@ let codon_vers_acide n1 n2 n3 =
 @throws Une exception lorsque le brin est invalide
 *)
 let brin_vers_chaine (b: brin): chaine =
-    let rec brin_vers_chaine_rec (b: brin) (chaine: chaine): chaine =
+    let rec brin_vers_chaine_rec (b: brin) (chaine: chaine) (start: bool): chaine =
         match b with
-            | []            -> failwith "[brin_vers_chaine] erreur : brin invalide" (* Si ce cas est atteint, alors il n'y a pas eu de STOP, le brin est donc invalide *)
+            | []            -> chaine
             | _::[]         -> failwith "[brin_vers_chaine] erreur : brin invalide"
-            | _::_::[]      -> failwith "[brin_vers_chaine] erreur : brin invalide"
+            | _::_::[]      -> failwith "[brin_vers_chaine 188] erreur : brin invalide"
             | n1::n2::n3::q -> 
                 let acide = 
                     codon_vers_acide n1 n2 n3
                 in 
-                    if acide = STOP then
-                        chaine
-                    else if acide = START then
-                        failwith "[brin_vers_chaine] erreur : brin invalide"
-                    else
-                        brin_vers_chaine_rec q (chaine@[acide])
+                    match (q, start, acide) with
+                    | (_, true, STOP)       -> chaine (* On arrive au bout du brin *)
+                    | ([], _, _)            -> failwith "[brin_vers_chaine] erreur : brin invalide" (* On arrive au bout du brin sans STOP => brin invalide *)
+                    | (_, false, START)     -> brin_vers_chaine_rec q [] true (* On commence la chaîne *)
+                    | (_, true, START)      -> failwith "[brin_vers_chaine] erreur : brin invalide" (* On a déjà commencé la chaîne => brin invalide *)
+                    | (_, false, _)         -> failwith "[brin_vers_chaine] erreur : brin invalide" (* On a un acide sans avoir commencé de chaîne => brin invalide *)
+                    | (_, true, _)          -> brin_vers_chaine_rec q (chaine@[acide]) true (* On passe au codon suivant *)
     in
-        match b with
-        | []            -> []
-        | _::[]         -> failwith "[brin_vers_chaine] erreur : brin invalide"
-        | _::_::[]      -> failwith "[brin_vers_chaine] erreur : brin invalide"
-        | n1::n2::n3::q -> 
-            let acide = 
-                codon_vers_acide n1 n2 n3
-            in 
-                if acide = START then
-                    brin_vers_chaine_rec q []
-                else 
-                    failwith "[brin_vers_chaine] erreur : brin invalide"
+        brin_vers_chaine_rec b [] false
     ;;
 
 (* Assertions *)
@@ -222,6 +212,13 @@ let () = printf "%-30s %s\n" "brin_vers_chaine:" "Assertions effectuées avec su
 
 (*** Question 6 ***)
 
+(*
+@function brin_vers_chaine
+@desc Décode toutes les chaînes d'un brin d'ADN donné.
+@param b Un brin d'ADN
+@returns Toutes les chaînes d'acides aminés du brin d'ADN 
+@throws Une exception lorsque le brin est invalide
+*)
 let brin_vers_chaines (b: brin): chaine list = 
     let rec brin_vers_chaines_rec (b: brin) (chaine: chaine) (chaines: chaine list) (start: bool): chaine list =
         match b with
@@ -233,7 +230,7 @@ let brin_vers_chaines (b: brin): chaine list =
                     codon_vers_acide n1 n2 n3
                 in 
                     match (q, start, acide) with
-                    | ([], _, STOP)         -> chaines@[chaine] (* On arrive au bout du brin *)
+                    | ([], true, STOP)      -> chaines@[chaine] (* On arrive au bout du brin *)
                     | ([], _, _)            -> failwith "[brin_vers_chaines] erreur : brin invalide" (* On arrive au bout du brin sans STOP => brin invalide *)
                     | (_, false, START)     -> brin_vers_chaines_rec q [] chaines true (* On commence une nouvelle chaîne *)
                     | (_, true, START)      -> failwith "[brin_vers_chaines] erreur : brin invalide" (* On a déjà commencé une chaîne => brin invalide *)
