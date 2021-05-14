@@ -219,3 +219,35 @@ let () = assert (brin_vers_chaine [] = []);;
 (* brin_vers_chaine [G;G;C;A;T;T] provoquerait une erreur car le brin ne commence pas par START*)
 (* brin_vers_chaine [T;A;C;G;G;C] provoquerait une erreur car le brin ne commence pas par START*)
 let () = printf "%-30s %s\n" "brin_vers_chaine:" "Assertions effectuées avec succès.";;
+
+(*** Question 6 ***)
+
+let brin_vers_chaines (b: brin): chaine list = 
+    let rec brin_vers_chaines_rec (b: brin) (chaine: chaine) (chaines: chaine list) (start: bool): chaine list =
+        match b with
+            | []            -> chaines
+            | _::[]         -> failwith "[brin_vers_chaines] erreur : brin invalide"
+            | _::_::[]      -> failwith "[brin_vers_chaines] erreur : brin invalide"
+            | n1::n2::n3::q -> 
+                let acide = 
+                    codon_vers_acide n1 n2 n3
+                in 
+                    match (q, start, acide) with
+                    | ([], _, STOP)         -> chaines@[chaine] (* On arrive au bout du brin *)
+                    | ([], _, _)            -> failwith "[brin_vers_chaines] erreur : brin invalide" (* On arrive au bout du brin sans STOP => brin invalide *)
+                    | (_, false, START)     -> brin_vers_chaines_rec q [] chaines true (* On commence une nouvelle chaîne *)
+                    | (_, true, START)      -> failwith "[brin_vers_chaines] erreur : brin invalide" (* On a déjà commencé une chaîne => brin invalide *)
+                    | (_, true, STOP)       -> brin_vers_chaines_rec q [] (chaines@[chaine]) false (* On passe à la chaîne suivante *)
+                    | (_, false, _)         -> failwith "[brin_vers_chaines] erreur : brin invalide" (* On a un acide sans avoir commencé de chaîne => brin invalide *)
+                    | (_, true, _)          -> brin_vers_chaines_rec q (chaine@[acide]) chaines true (* On passe au codon suivant *)
+    in
+        brin_vers_chaines_rec b [] [] false
+    ;;
+
+let () = assert (brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C] = [[Pro;Ile]; [Arg;Leu]]);;
+let () = assert (brin_vers_chaines [] = []);;
+(* brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T];; provoquerait une erreur car ne termine pas par STOP*)
+(* brin_vers_chaines [T;A;C;T;A;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C];; provoquerait une erreur car possède deux START sans STOP au milieu*)
+(* brin_vers_chaines [G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C];; provoquerait une erreur car ne commence pas par START*)
+(* brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;G;C;T;A;A;T;A;T;C];; provoquerait une erreur car une chaine commence sans START*)
+let () = printf "%-30s %s\n" "brin_vers_chaines:" "Assertions effectuées avec succès.";;
