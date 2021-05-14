@@ -141,6 +141,9 @@ type acide =    Ala | Arg | Asn | Asp | Cys | Glu | Gln | Gly | His | Ile |
                 Leu | Lys | Phe | Pro | Ser | Thr | Trp | Tyr | Val | 
                 START | STOP;;
 
+(* Séquences génétiques - Type avancé : chaine *)
+type chaine = acide list;;
+
 (*
 @function codon_vers_acide
 @desc Pour un codon donné, renvoie l'acide aminé qui lui correspond (ou START/STOP).
@@ -152,20 +155,67 @@ type acide =    Ala | Arg | Asn | Asp | Cys | Glu | Gln | Gly | His | Ile |
 *)
 let codon_vers_acide n1 n2 n3 = 
     match n1, n2, n3 with
-    | (A,A,A) -> Phe | (A,A,G) -> Phe | (A,A,T) -> Leu | (A,A,C) -> Leu 
-    | (G,A,A) -> Leu | (G,A,G) -> Leu | (G,A,T) -> Leu | (G,A,C) -> Leu
-    | (T,A,A) -> Ile | (T,A,G) -> Ile | (T,A,T) -> Ile | (T,A,C) -> START
-    | (C,A,A) -> Val | (C,A,G) -> Val | (C,A,T) -> Val | (C,A,C) -> Val 
-    | (A,G,A) -> Ser | (A,G,G) -> Ser | (A,G,T) -> Ser | (A,G,C) -> Ser
-    | (G,G,A) -> Pro | (G,G,G) -> Pro | (G,G,T) -> Pro | (G,G,C) -> Pro
-    | (T,G,A) -> Thr | (T,G,G) -> Thr | (T,G,T) -> Thr | (T,G,C) -> Thr
-    | (C,G,A) -> Ala | (C,G,G) -> Ala | (C,G,T) -> Ala | (C,G,C) -> Ala
-    | (A,T,A) -> Tyr | (A,T,G) -> Tyr | (A,T,T) -> STOP| (A,T,C) -> STOP
-    | (G,T,A) -> His | (G,T,G) -> His | (G,T,T) -> Gln | (G,T,C) -> Gln
-    | (T,T,A) -> Asn | (T,T,G) -> Asn | (T,T,T) -> Lys | (T,T,C) -> Lys
-    | (C,T,A) -> Asp | (C,T,G) -> Asp | (C,T,T) -> Glu | (C,T,C) -> Glu
-    | (A,C,A) -> Cys | (A,C,G) -> Cys | (A,C,T) -> STOP| (A,C,C) -> Trp
-    | (G,C,A) -> Arg | (G,C,G) -> Arg | (G,C,T) -> Arg | (G,C,C) -> Arg
-    | (T,C,A) -> Ser | (T,C,G) -> Ser | (T,C,T) -> Arg | (T,C,C) -> Arg
-    | (C,C,A) -> Gly | (C,C,G) -> Gly | (C,C,T) -> Gly | (C,C,C) -> Gly
+    | (A,A,A) -> Phe  | (A,A,G) -> Phe  | (A,A,T) -> Leu  | (A,A,C) -> Leu 
+    | (G,A,A) -> Leu  | (G,A,G) -> Leu  | (G,A,T) -> Leu  | (G,A,C) -> Leu
+    | (T,A,A) -> Ile  | (T,A,G) -> Ile  | (T,A,T) -> Ile  | (T,A,C) -> START
+    | (C,A,A) -> Val  | (C,A,G) -> Val  | (C,A,T) -> Val  | (C,A,C) -> Val 
+    | (A,G,A) -> Ser  | (A,G,G) -> Ser  | (A,G,T) -> Ser  | (A,G,C) -> Ser
+    | (G,G,A) -> Pro  | (G,G,G) -> Pro  | (G,G,T) -> Pro  | (G,G,C) -> Pro
+    | (T,G,A) -> Thr  | (T,G,G) -> Thr  | (T,G,T) -> Thr  | (T,G,C) -> Thr
+    | (C,G,A) -> Ala  | (C,G,G) -> Ala  | (C,G,T) -> Ala  | (C,G,C) -> Ala
+    | (A,T,A) -> Tyr  | (A,T,G) -> Tyr  | (A,T,T) -> STOP | (A,T,C) -> STOP
+    | (G,T,A) -> His  | (G,T,G) -> His  | (G,T,T) -> Gln  | (G,T,C) -> Gln
+    | (T,T,A) -> Asn  | (T,T,G) -> Asn  | (T,T,T) -> Lys  | (T,T,C) -> Lys
+    | (C,T,A) -> Asp  | (C,T,G) -> Asp  | (C,T,T) -> Glu  | (C,T,C) -> Glu
+    | (A,C,A) -> Cys  | (A,C,G) -> Cys  | (A,C,T) -> STOP | (A,C,C) -> Trp
+    | (G,C,A) -> Arg  | (G,C,G) -> Arg  | (G,C,T) -> Arg  | (G,C,C) -> Arg
+    | (T,C,A) -> Ser  | (T,C,G) -> Ser  | (T,C,T) -> Arg  | (T,C,C) -> Arg
+    | (C,C,A) -> Gly  | (C,C,G) -> Gly  | (C,C,T) -> Gly  | (C,C,C) -> Gly
     ;;
+
+(*
+@function brin_vers_chaine
+@desc Décode les codons de la première chaîne d'acide aminés d'un brin d'ADN donné.
+@param b Un brin d'ADN
+@returns La première chaîne d'acide aminés du brin
+@throws Une exception lorsque le brin est invalide
+*)
+let brin_vers_chaine (b: brin): chaine =
+    let rec brin_vers_chaine_rec (b: brin) (chaine: chaine): chaine =
+        match b with
+            | []            -> failwith "[brin_vers_chaine] erreur : brin invalide" (* Si ce cas est atteint, alors il n'y a pas eu de STOP, le brin est donc invalide *)
+            | _::[]         -> failwith "[brin_vers_chaine] erreur : brin invalide"
+            | _::_::[]      -> failwith "[brin_vers_chaine] erreur : brin invalide"
+            | n1::n2::n3::q -> 
+                let acide = 
+                    codon_vers_acide n1 n2 n3
+                in 
+                    if acide = STOP then
+                        chaine
+                    else if acide = START then
+                        failwith "[brin_vers_chaine] erreur : brin invalide"
+                    else
+                        brin_vers_chaine_rec q (chaine@[acide])
+    in
+        match b with
+        | []            -> []
+        | _::[]         -> failwith "[brin_vers_chaine] erreur : brin invalide"
+        | _::_::[]      -> failwith "[brin_vers_chaine] erreur : brin invalide"
+        | n1::n2::n3::q -> 
+            let acide = 
+                codon_vers_acide n1 n2 n3
+            in 
+                if acide = START then
+                    brin_vers_chaine_rec q []
+                else 
+                    failwith "[brin_vers_chaine] erreur : brin invalide"
+    ;;
+
+(* Assertions *)
+let () = assert (brin_vers_chaine [T;A;C;G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C] = [Pro;Ile]);;
+let () = assert (brin_vers_chaine [] = []);;
+(* brin_vers_chaine [T;A;C;T;A;C] provoquerait une erreur car on y trouve deux acides START d'affilée *)
+(* brin_vers_chaine [T;A;C;G;G;A;T;C] provoquerait une erreur car la taille du brin n'est pas un multiple de 3 (donc indivisible en codons) *)
+(* brin_vers_chaine [G;G;C;A;T;T] provoquerait une erreur car le brin ne commence pas par START*)
+(* brin_vers_chaine [T;A;C;G;G;C] provoquerait une erreur car le brin ne commence pas par START*)
+let () = printf "%-30s %s\n" "brin_vers_chaine:" "Assertions effectuées avec succès.";;
