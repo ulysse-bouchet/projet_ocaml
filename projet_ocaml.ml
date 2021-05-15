@@ -297,6 +297,7 @@ let rec arbre_phylo_vers_string (arbre: arbre_phylo): string =
 let arbre_1 = Br (Br (Lf ([G;C;A;T]), [A;C;A;T], 3, Lf ([T;C;G;T])), [A;A;A;A], 8, Br (Lf ([T;A;G;A]), [A;A;G;A], 2, Lf ([G;A;G;A])));;
 let arbre_2 = Br (Br (Lf ([G;A;A;T]), [G;C;T;T], 5, Lf ([C;A;G;T])), [A;A;T;A], 12, Br (Lf ([T;A;G;A]), [A;A;G;A], 3, Lf ([G;T;G;A])));;
 let arbre_3 = Lf ([]);;
+let arbre_4 = Br (Br (Lf ([G;A;G;T]), [G;C;T;T], 5, Lf ([C;A;G;T])), [A;A;T;A], 12, Br (Lf ([T;A;G;A]), [A;A;G;A], 3, Lf ([G;T;G;A])));;
 
 (* Assertions *)
 
@@ -307,3 +308,49 @@ let () = assert (arbre_phylo_vers_string arbre_2 =
 let () = assert (arbre_phylo_vers_string arbre_3 = 
                     "()");;
 let () = printf "%-30s %s\n" "arbre_phylo_vers_string:" "Assertions effectuées avec succès.";;
+
+(*** Question 2 ***)
+
+(*
+@function similarite_arbre
+@desc Calcule la similarité de deux arbres phylogénétiques en comparant leurs éléments deux à deux.
+@param arbre_1 Un arbre phylogénétique 
+@param arbre_2 Un autre arbre phylogénétique
+@returns La somme de leur similarités procentuelles
+*)
+let rec similarite_arbre (arbre_1: arbre_phylo) (arbre_2: arbre_phylo): float =
+    match (arbre_1, arbre_2) with
+    | Lf (_), Br (_, _, _, _) ->
+        failwith "[similarite_arbre] erreur : tailles différentes"
+    | Br (_, _, _, _), Lf (_) ->
+        failwith "[similarite_arbre] erreur : tailles différentes"
+    | Lf (brin_1), Lf (brin_2) ->
+        similarite brin_1 brin_2
+    | Br (arbre_gauche_1, brin_1, malus_1, arbre_droit_1), Br (arbre_gauche_2, brin_2, malus_2, arbre_droit_2) ->
+        (similarite brin_1 brin_2) +. (similarite_arbre arbre_gauche_1 arbre_gauche_2) +. (similarite_arbre arbre_droit_1 arbre_droit_2)
+    ;;
+
+(*
+@function similaire
+@desc Calcule, pour une liste d'arbres et un arbre donné, l'arbre le plus similaire avec ce dernier.
+@param arbre Un arbre phylogénétique
+@param arbres Une liste d'arbres phylogénétiques
+@returns L'arbre le plus similaire
+*)
+let similaire (arbre: arbre_phylo) (arbres: arbre_phylo list): arbre_phylo =
+    let rec aux restants plus_grand plus_grand_simi =
+        match restants with
+        | []    -> plus_grand
+        | t::q  -> let simi = similarite_arbre arbre t in if simi < plus_grand_simi then aux q plus_grand plus_grand_simi else aux q t simi
+    in
+        match arbres with
+        | []    -> failwith "[similaire] erreur : liste vite"
+        | t::q  -> aux q t (similarite_arbre arbre t)
+    ;;
+
+(* Assertions *)
+
+let () = assert (similaire arbre_1 [arbre_4; arbre_2] = arbre_2);;
+let () = assert (similaire arbre_1 [arbre_1; arbre_2; arbre_4] = arbre_1);;
+(* similaire arbre_1 [] provoquerait une exception puisque la liste est vide *)
+let () = printf "%-30s %s\n" "similaire:" "Assertions effectuées avec succès.";;
