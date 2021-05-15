@@ -8,6 +8,10 @@
 (* Imports *)
 open Format
 
+(*************************)
+(*** SÉQUENCES ADN/ARN ***)
+(*************************)
+
 (* Séquences génétiques - Types de bases *)
 (* @author : Stefania Dumbrava *)
 type nucleotide = A | C | G | T;;
@@ -21,13 +25,13 @@ type brin = nucleotide list;;
 @param b Un brin d'ADN
 @returns float Le taux de nucléotides de type G ou C du brin 
 *)
-let contenu_gc (b: brin): float =
-    if List.length b = 0 then 
+let contenu_gc (brin: brin): float =
+    if List.length brin = 0 then 
         failwith "[contenu_gc] erreur : brin vide"
     else
-        List.fold_left (fun acc nucl -> acc +. if nucl = G || nucl = C then 1. else 0.) 0. b
+        List.fold_left (fun acc nucl -> acc +. if nucl = G || nucl = C then 1. else 0.) 0. brin
         /. 
-        (float) (List.length b)
+        (float) (List.length brin)
     ;;
 
 (* Assertions *)
@@ -248,3 +252,58 @@ let () = assert (brin_vers_chaines [] = []);;
 (* brin_vers_chaines [G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C];; provoquerait une erreur car ne commence pas par START*)
 (* brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;G;C;T;A;A;T;A;T;C];; provoquerait une erreur car une chaine commence sans START*)
 let () = printf "%-30s %s\n" "brin_vers_chaines:" "Assertions effectuées avec succès.";;
+
+(******************************)
+(*** ARBRES PHYLOGÉNÉTIQUES ***)
+(******************************)
+
+
+(* Arbres phylogénétiques - Type de base *)
+(* @author Stefania Dumbrava *)
+type arbre_phylo = 
+    | Lf of brin 
+    | Br of arbre_phylo * brin * int * arbre_phylo;;
+
+(*** Question 1 ***)
+
+(*
+@function brin_vers_string
+@desc Donne la représentation en chaîne de caractères d'un brin donné (ex: [A;T;C;G] --> ATCG)
+@param Un brin d'ADN
+@returns Sa représentation en chaîne de caractères
+*)
+let brin_vers_string (brin: brin) =
+    List.fold_left (fun str nucl -> str ^ match nucl with |A->"A"|T->"T"|C->"C"|G->"G") "" brin
+    ;;
+
+(*
+@function arbre_phylo_vers_string
+@desc Donne la représentation en chaîne de caractères d'un arbre phylogénétique donné
+@param Un arbre phylogénétique
+@returns Sa représentation en chaîne de caractères
+*)
+let rec arbre_phylo_vers_string (arbre: arbre_phylo): string =
+    match arbre with 
+    | Lf (brin) ->
+        "(" ^ brin_vers_string brin ^ ")"
+    | Br (arbre_gauche, brin, malus, arbre_droit) ->
+        "{" ^ arbre_phylo_vers_string arbre_gauche ^ "}" ^
+        " <-- (" ^ brin_vers_string brin ^ " " ^ string_of_int malus ^ ") --> " ^
+        "{" ^ arbre_phylo_vers_string arbre_droit ^ "}"
+    ;;
+
+(* Définition de quelques arbres *)
+
+let arbre_1 = Br (Br (Lf ([G;C;A;T]), [A;C;A;T], 3, Lf ([T;C;G;T])), [A;A;A;A], 8, Br (Lf ([T;A;G;A]), [A;A;G;A], 2, Lf ([G;A;G;A])));;
+let arbre_2 = Br (Br (Lf ([G;A;A;T]), [G;C;T;T], 5, Lf ([C;A;G;T])), [A;A;T;A], 12, Br (Lf ([T;A;G;A]), [A;A;G;A], 3, Lf ([G;T;G;A])));;
+let arbre_3 = Lf ([]);;
+
+(* Assertions *)
+
+let () = assert (arbre_phylo_vers_string arbre_1 = 
+                    "{{(GCAT)} <-- (ACAT 3) --> {(TCGT)}} <-- (AAAA 8) --> {{(TAGA)} <-- (AAGA 2) --> {(GAGA)}}");;
+let () = assert (arbre_phylo_vers_string arbre_2 = 
+                    "{{(GAAT)} <-- (GCTT 5) --> {(CAGT)}} <-- (AATA 12) --> {{(TAGA)} <-- (AAGA 3) --> {(GTGA)}}");;
+let () = assert (arbre_phylo_vers_string arbre_3 = 
+                    "()");;
+let () = printf "%-30s %s\n" "arbre_phylo_vers_string:" "Assertions effectuées avec succès.";;
