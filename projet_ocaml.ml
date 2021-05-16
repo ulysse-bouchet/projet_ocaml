@@ -455,3 +455,31 @@ let a_res = [a1; a2; a3; a4; a5; a6];;
 
 let () = assert (gen_phylo b1 b2 b3 = a_res);;
 let () = printf "%-30s %s\n" "gen_phylo:" "Assertions effectuées avec succès.";;
+
+(*** Question 5 ***)
+
+(*
+@function min_malus
+@desc Pour une liste donnée, renvoie l'arbre phylogénétique ayant le malus minimal.
+@param arbres Une liste d'arbres phylogénétiques
+@returns L'arbre ayant le malus minimal
+*)
+let min_malus (arbres: arbre_phylo list): arbre_phylo =
+    let rec min_malus_rec (arbres: arbre_phylo list) (min_malus: int) (min_arbre: arbre_phylo): arbre_phylo =
+        match arbres with
+        | []    -> min_arbre
+        | t::q  -> 
+            let cur_malus = 
+                get_malus t 
+            in 
+                min_malus_rec q (if cur_malus < min_malus then cur_malus else min_malus) (if cur_malus < min_malus then t else min_arbre)
+    in
+        match arbres with
+        | []    -> failwith "[min_malus] erreur : liste vide" 
+        | t::q  -> min_malus_rec q (get_malus t) t
+    ;;
+
+(* Assertions *)
+
+let () = assert (min_malus [arbre_1; arbre_2] = arbre_1);;
+let () = printf "%-30s %s\n" "min_malus:" "Assertions effectuées avec succès.";;
