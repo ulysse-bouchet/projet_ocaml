@@ -483,3 +483,25 @@ let min_malus (arbres: arbre_phylo list): arbre_phylo =
 
 let () = assert (min_malus [arbre_1; arbre_2] = arbre_1);;
 let () = printf "%-30s %s\n" "min_malus:" "Assertions effectuées avec succès.";;
+
+(*** Question 6 ***)
+
+(*
+@function gen_min_malus_phylo
+@desc Pour une liste de brins donnée (possédant 1 ou 3 brins seulement), renvoie l'arbre phylogénétique possédant comme feuilles ces brins et ayant le malus minimum.
+@param brins Une liste de brins d'ADN
+@returns L'arbre phylogénétique ayant le malus minimum
+@warning Cette fonction n'est pas exactement ce qui était demandé.
+*)
+let gen_min_malus_phylo (brins: brin list): arbre_phylo =
+    match brins with 
+    | []            -> failwith "[gen_min_malus_phylo] erreur : liste vide" 
+    | [b]           -> Lf (b)
+    | [b1;b2;b3]    -> min_malus (gen_phylo b1 b2 b3)
+    | _             -> failwith "[gen_min_malus_phylo] erreur : taille de liste non supportée" 
+    ;;
+
+(* Assertions *)
+
+let () = assert (gen_min_malus_phylo [b1;b2;b3] = Br (Lf [A; A; A; A], [T; T; T; T], 8, Lf [C; C; C; C]));;
+(* gen_min_malus_phylo [] provoquerait une erreur car la liste est vide *)
