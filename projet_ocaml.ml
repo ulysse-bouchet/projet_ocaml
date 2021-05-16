@@ -354,3 +354,68 @@ let () = assert (similaire arbre_1 [arbre_4; arbre_2] = arbre_2);;
 let () = assert (similaire arbre_1 [arbre_1; arbre_2; arbre_4] = arbre_1);;
 (* similaire arbre_1 [] provoquerait une exception puisque la liste est vide *)
 let () = printf "%-30s %s\n" "similaire:" "Assertions effectuées avec succès.";;
+
+(*** Question 3 ***)
+
+(*
+@function get_root
+@desc Extrait le brin de la racine d'un arbre phylogénétique.
+@param arbre Un arbre phylogénétique
+@returns Le brin de sa racine
+*)
+let get_root (arbre: arbre_phylo): brin =
+    match arbre with
+    | Lf (brin)             -> brin
+    | Br (_, brin, _, _)    -> brin
+    ;;
+
+(* Assertions *)
+
+let () = assert (get_root arbre_1 = [A;A;A;A]);;
+let () = assert (get_root arbre_2 = [A;A;T;A]);;
+let () = assert (get_root arbre_3 = []);;
+let () = printf "%-30s %s\n" "get_root:" "Assertions effectuées avec succès.";;
+
+(*
+@function get_malus
+@desc Extrait le malus de la racine d'un arbre phylogénétique.
+@param arbre Un arbre phylogénétique
+@returns Le malus de sa racine
+*)
+let get_malus (arbre: arbre_phylo): int =
+    match arbre with
+    | Lf (_)                    -> 0
+    | Br (_, _, malus, _)       -> malus
+    ;;
+
+(* Assertions *)
+
+let () = assert (get_malus arbre_1 = 8);;
+let () = assert (get_malus arbre_2 = 12);;
+let () = assert (get_malus arbre_3 = 0);;
+let () = printf "%-30s %s\n" "get_malus:" "Assertions effectuées avec succès.";;
+
+(*
+@function br
+@desc Construit un arbre phylogénétique à partir d'un sous-arbre gauche, d'un brin et d'un sous-arbre droit.
+@param arbre_gauche Un arbre phylogénétique
+@param brin Un brin d'ADN
+@param arbre_droit Un autre arbre phylogénétique
+@returns Un arbre phylogénétique basé sur les paramètres
+*)
+let br (arbre_gauche: arbre_phylo) (brin: brin) (arbre_droit: arbre_phylo): arbre_phylo =
+    let malus =
+        (distance brin (get_root arbre_gauche) + get_malus arbre_gauche) + (distance brin (get_root arbre_droit) + get_malus arbre_droit)
+    in
+        Br (arbre_gauche, brin, malus, arbre_droit)
+    ;;
+
+(* Assertions *)
+
+let br_res = Br (Br (Lf ([A;A;T;T]), [T;T;T;T], 4, Lf ([T;T;A;A])), [A;A;A;A], 14, Br (Lf ([A;A;T;T]), [T;A;A;T], 4, Lf ([T;T;A;A])));;
+let br_brin = [A;A;A;A];;
+let br_gauche = Br (Lf ([A;A;T;T]), [T;T;T;T], 4, Lf ([T;T;A;A]));;
+let br_droit = Br (Lf ([A;A;T;T]), [T;A;A;T], 4, Lf ([T;T;A;A]));;
+
+let () = assert (br br_gauche br_brin br_droit = br_res);;
+let () = printf "%-30s %s\n" "br:" "Assertions effectuées avec succès.";;
