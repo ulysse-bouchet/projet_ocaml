@@ -257,7 +257,6 @@ let () = printf "%-30s %s\n" "brin_vers_chaines:" "Assertions effectuées avec s
 (*** ARBRES PHYLOGÉNÉTIQUES ***)
 (******************************)
 
-
 (* Arbres phylogénétiques - Type de base *)
 (* @author Stefania Dumbrava *)
 type arbre_phylo = 
@@ -419,3 +418,40 @@ let br_droit = Br (Lf ([A;A;T;T]), [T;A;A;T], 4, Lf ([T;T;A;A]));;
 
 let () = assert (br br_gauche br_brin br_droit = br_res);;
 let () = printf "%-30s %s\n" "br:" "Assertions effectuées avec succès.";;
+
+(*** Question 4 ***)
+
+(*
+@function gen_phylo
+@desc Génère tous les arbres phylogénétiques possibles à partir des trois brins donnés.
+@param b1 Un brin d'ADN
+@param b2 Un autre brin d'ADN
+@param b3 Un autre brin d'ADN
+@returns La liste des arbres phylogénétiques générés
+*)
+let gen_phylo (b1: brin) (b2: brin) (b3: brin): arbre_phylo list =
+    [
+        br (Lf (b1)) b2 (Lf (b3));
+        br (Lf (b1)) b3 (Lf (b2));
+        br (Lf (b2)) b1 (Lf (b3));
+        br (Lf (b2)) b3 (Lf (b1));
+        br (Lf (b3)) b1 (Lf (b2));
+        br (Lf (b3)) b2 (Lf (b1))
+    ]
+    ;;
+
+(* Assertions *)
+
+let b1 = [A;A;A;A];;
+let b2 = [T;T;T;T];;
+let b3 = [C;C;C;C];;
+let a1 = Br (Lf (b1), b2, distance b2 b1 + distance b2 b3, Lf (b3));;
+let a2 = Br (Lf (b1), b3, distance b3 b1 + distance b3 b2, Lf (b2));;
+let a3 = Br (Lf (b2), b1, distance b1 b2 + distance b1 b3, Lf (b3));;
+let a4 = Br (Lf (b2), b3, distance b3 b2 + distance b3 b1, Lf (b1));;
+let a5 = Br (Lf (b3), b1, distance b1 b3 + distance b1 b2, Lf (b2));;
+let a6 = Br (Lf (b3), b2, distance b2 b3 + distance b2 b1, Lf (b1));;
+let a_res = [a1; a2; a3; a4; a5; a6];;
+
+let () = assert (gen_phylo b1 b2 b3 = a_res);;
+let () = printf "%-30s %s\n" "gen_phylo:" "Assertions effectuées avec succès.";;
