@@ -6,4 +6,6 @@ Le projet était composé de deux parties. La première avait pour but d'introdu
 
 En quelques mots, il s'agissait d'utiliser le langage **OCAML** afin de modéliser des brins d'ADN, des nucléotides et des arbres phylogénétiques afin de réaliser des opérations et calculs variés.
 
-Le sujet de ce projet est disponible <a href="./blob/main/sujet.pdf">en suivant ce lien.</a>
+Le sujet de ce projet est disponible <a href="sujet.pdf">en suivant ce lien.</a>
+
+Vous pouvez également accèder à mon rapport <a href="rapport.pdf">en suivant ce lien.</a>

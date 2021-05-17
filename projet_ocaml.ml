@@ -245,6 +245,8 @@ let brin_vers_chaines (b: brin): chaine list =
         brin_vers_chaines_rec b [] [] false
     ;;
 
+(* Assertions *)
+
 let () = assert (brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T;A;T;C] = [[Pro;Ile]; [Arg;Leu]]);;
 let () = assert (brin_vers_chaines [] = []);;
 (* brin_vers_chaines [T;A;C;G;G;C;T;A;G;A;T;T;T;A;C;G;C;T;A;A;T];; provoquerait une erreur car ne termine pas par STOP*)
@@ -343,7 +345,7 @@ let similaire (arbre: arbre_phylo) (arbres: arbre_phylo list): arbre_phylo =
         | t::q  -> let simi = similarite_arbre arbre t in if simi < plus_grand_simi then aux q plus_grand plus_grand_simi else aux q t simi
     in
         match arbres with
-        | []    -> failwith "[similaire] erreur : liste vite"
+        | []    -> failwith "[similaire] erreur : liste vide"
         | t::q  -> aux q t (similarite_arbre arbre t)
     ;;
 
